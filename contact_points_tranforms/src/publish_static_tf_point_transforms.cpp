@@ -1,24 +1,17 @@
-//#include <tf2_ros/static_transform_broadcaster.h>
-//#include <tf/tf.h>
-//#include <geometry_msgs/TransformStamped.h>
+#include <tf2_ros/static_transform_broadcaster.h>
+#include <tf/tf.h>
+#include <geometry_msgs/TransformStamped.h>
 //#include <cstdio>
 
 //std::string static_turtle_name;
 
-//int main(int argc, char **argv)
-//{
-//  ros::init(argc,argv, "my_static_tf2_broadcaster");
-//  if(argc != 8)
-//  {
-//    ROS_ERROR("Invalid number of parameters\nusage: static_turtle_tf2_broadcaster child_frame_name x y z roll pitch yaw");
-//    return -1;
-//  }
-//  if(strcmp(argv[1],"world")==0)
-//  {
-//    ROS_ERROR("Your static turtle name cannot be 'world'");
-//    return -1;
+int main(int argc, char **argv)
+{
+  ros::init(argc,argv, "contact_points_tf_broadcaster");
 
-//  }
+  ros::NodeHandle nh("~");
+  std::string path;
+  nh.param("contact_points_file", path, std::string(""));
 //  static_turtle_name = argv[1];
 //  static tf2_ros::StaticTransformBroadcaster static_broadcaster;
 //  geometry_msgs::TransformStamped static_transformStamped;
@@ -38,5 +31,5 @@
 //  static_broadcaster.sendTransform(static_transformStamped);
 //  ROS_INFO("Spinning until killed publishing %s to world", static_turtle_name.c_str());
 //  ros::spin();
-//  return 0;
-//}
+  return 0;
+}

@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   tf2
   tf2_ros
+  jaco2_kin_dyn_lib
 )
 
 ## System dependencies are found with CMake's conventions
@@ -101,10 +102,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES contact_points_tranforms
-#  CATKIN_DEPENDS roscpp rospy tf2 tf2_ros
-#  DEPENDS system_lib
+  INCLUDE_DIRS include
+  LIBRARIES contact_points_tranforms
+  CATKIN_DEPENDS roscpp rospy tf2 tf2_ros jaco2_kin_dyn_lib
+  DEPENDS system_lib
 )
 
 ###########
