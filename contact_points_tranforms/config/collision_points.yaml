@@ -350,5 +350,59 @@ parameter:
     p_x: 0.0
     p_y: -0.03556
     p_z: -0.0381
+  - parent: jaco_link_hand
+    frame_name: p611
+    q_x:  0.0
+    q_y:  -0.076486
+    q_z:  -0.075536
+    q_w:  0.994205
+    p_x:  0.047498
+    p_y:  -0.023876
+    p_z:  -0.060452
+  - parent: jaco_link_hand
+    frame_name: p621
+    q_x:  0.0
+    q_y:  -0.120126
+    q_z:  0.115333
+    q_w:  0.986037
+    p_x:  0.046482
+    p_y:  0.023114
+    p_z:  -0.057658
+  - parent: jaco_link_hand
+    frame_name: p631
+    q_x:  0.0
+    q_y:  -0.103594
+    q_z:  0.686917
+    q_w:  0.719315
+    p_x:  0.019812
+    p_y:  0.044196
+    p_z:  -0.06985
+  - parent: jaco_link_hand
+    frame_name: p641
+    q_x:  0.0
+    q_y:  -0.025876
+    q_z:  0.804746
+    q_w:  0.593055
+    p_x:  -0.0381
+    p_y:  0.02413
+    p_z:  -0.061976
+  - parent: jaco_link_hand
+    frame_name: p651
+    q_x:  0.0
+    q_y:  -0.126212
+    q_z:  -0.814809
+    q_w:  0.565825
+    p_x:  -0.039624
+    p_y:  -0.026924
+    p_z:  -0.06858
+  - parent: jaco_link_hand
+    frame_name: p661
+    q_x:  0.0
+    q_y:  -0.066466
+    q_z:  -0.775164
+    q_w:  0.628254
+    p_x:  0.016002
+    p_y:  -0.04445
+    p_z:  -0.070612
     
     
