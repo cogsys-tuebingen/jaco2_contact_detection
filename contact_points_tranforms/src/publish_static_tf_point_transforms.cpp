@@ -16,13 +16,13 @@ int main(int argc, char **argv)
     double rate = 20;
     nh.param("contact_points_file", path, std::string(""));
     nh.param("node_rate", rate, 20.0);
-    std::vector<Jaco2Yaml2KDLTransform::KDLTransformation> points;
+    std::vector<Jaco2KinDynLib::KDLTransformation> points;
     if(path != ""){
-        Jaco2Yaml2KDLTransform::load(path, points);
+        Jaco2KinDynLib::load(path, points);
     }
 
     std::vector<tf2_ros::StaticTransformBroadcaster> static_broadcasters;
-    for(const Jaco2Yaml2KDLTransform::KDLTransformation& point : points)
+    for(const Jaco2KinDynLib::KDLTransformation& point : points)
     {
         static tf2_ros::StaticTransformBroadcaster static_broadcaster;
         geometry_msgs::TransformStamped static_transformStamped;

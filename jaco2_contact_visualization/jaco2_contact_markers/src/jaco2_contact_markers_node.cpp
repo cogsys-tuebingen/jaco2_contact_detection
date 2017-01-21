@@ -28,12 +28,12 @@ int main( int argc, char** argv )
 
     std::string path;
     n.param("point_path", path, std::string("/home/zwiener/collision_data/configs/collision_points.yaml"));
-    std::vector<Jaco2Yaml2KDLTransform::KDLTransformation> points;
+    std::vector<Jaco2KinDynLib::KDLTransformation> points;
 
 
-    Jaco2Yaml2KDLTransform::load(path, points);
+    Jaco2KinDynLib::load(path, points);
 
-    Jaco2KinematicModel model("robot_description","jaco_link_base","jaco_link_hand");
+    Jaco2KinDynLib::Jaco2KinematicModel model("robot_description","jaco_link_base","jaco_link_hand");
 
     // Set our initial shape type to be a cube
     uint32_t shape = visualization_msgs::Marker::ARROW;
