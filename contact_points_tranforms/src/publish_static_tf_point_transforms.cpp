@@ -13,9 +13,12 @@ int main(int argc, char **argv)
 
     ros::NodeHandle nh("~");
     std::string path;
+    std::string tf_prefix;
     double rate = 20;
+
     nh.param("contact_points_file", path, std::string(""));
     nh.param("node_rate", rate, 20.0);
+    nh.param("tf_prefix", tf_prefix, std::string(""));
     std::vector<Jaco2KinDynLib::KDLTransformation> points;
     if(path != ""){
         Jaco2KinDynLib::load(path, points);
@@ -28,8 +31,8 @@ int main(int argc, char **argv)
         geometry_msgs::TransformStamped static_transformStamped;
 
         static_transformStamped.header.stamp = ros::Time::now();
-        static_transformStamped.header.frame_id = point.parent;
-        static_transformStamped.child_frame_id = point.name;
+        static_transformStamped.header.frame_id = tf_prefix +  point.parent;
+        static_transformStamped.child_frame_id  = tf_prefix + point.name;
         static_transformStamped.transform.translation.x = point.frame.p(0);
         static_transformStamped.transform.translation.y = point.frame.p(1);
         static_transformStamped.transform.translation.z = point.frame.p(2);
