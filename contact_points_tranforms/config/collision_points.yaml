@@ -108,7 +108,7 @@ parameter:
     p_y: 0
     p_z: -0.004318
   - parent: jaco_link_2
-    frame_name: p231
+    frame_name: p241
     q_x: 0
     q_y: 0
     q_z: -0.707107
@@ -117,7 +117,7 @@ parameter:
     p_y: -0.0381
     p_z: -0.031242
   - parent: jaco_link_2
-    frame_name: p232
+    frame_name: p242
     q_x: 0
     q_y: 0
     q_z: -0.707107
@@ -126,7 +126,7 @@ parameter:
     p_y: -0.03175
     p_z: -0.026416
   - parent: jaco_link_2
-    frame_name: p233
+    frame_name: p243
     q_x: 0
     q_y: 0
     q_z: -0.707107
@@ -135,7 +135,7 @@ parameter:
     p_y: -0.033782
     p_z: -0.025146
   - parent: jaco_link_2
-    frame_name: p234
+    frame_name: p244
     q_x: 0
     q_y: 0
     q_z: -0.707107
@@ -144,7 +144,7 @@ parameter:
     p_y: -0.038354
     p_z: -0.03048
   - parent: jaco_link_2
-    frame_name: p241
+    frame_name: p231
     q_x: 0
     q_y: 0
     q_z: 0.707107
@@ -153,7 +153,7 @@ parameter:
     p_y: 0.038862
     p_z: -0.02921
   - parent: jaco_link_2
-    frame_name: p242
+    frame_name: p232
     q_x: 0
     q_y: 0
     q_z: 0.707107
@@ -162,7 +162,7 @@ parameter:
     p_y: 0.033782
     p_z: -0.02921
   - parent: jaco_link_2
-    frame_name: p243
+    frame_name: p233
     q_x: 0
     q_y: 0
     q_z: 0.707107
@@ -171,7 +171,7 @@ parameter:
     p_y: 0.033782
     p_z: -0.021082
   - parent: jaco_link_2
-    frame_name: p244
+    frame_name: p234
     q_x: 0
     q_y: 0
     q_z: 0.707107

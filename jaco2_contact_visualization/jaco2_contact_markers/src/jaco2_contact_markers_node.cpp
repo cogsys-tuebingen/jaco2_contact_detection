@@ -11,6 +11,8 @@
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Quaternion.h>
+#include <tf/tf.h>
+#include <tf/transform_listener.h>
 
 sensor_msgs::JointState state;
 jaco2_contact_msgs::Jaco2ContactMsgs cmsg;
@@ -57,7 +59,7 @@ int main( int argc, char** argv )
 
     // Set our initial shape type to be a cube
     uint32_t shape = visualization_msgs::Marker::ARROW;
-
+    tf::TransformListener listener;
     while (ros::ok())
     {
 //        visualization_msgs::Marker marker;
@@ -124,30 +126,50 @@ int main( int argc, char** argv )
         std::cout << cmsg.label << std::endl;
 
         if(cmsg.label != no_contact_label){
-            const Jaco2KinDynLib::KDLTransformation& trans = transform_map[cmsg.label];
-            std::string parent = trans.parent;
+//            const Jaco2KinDynLib::KDLTransformation& trans = transform_map[cmsg.label];
+//            std::string parent = trans.parent;
 
-            KDL::Frame transform;
-            model.getFKPose(angles,transform, parent);
-            std::cout << trans.name << std::endl;
-            KDL::Frame pframe = trans.frame;
+//            KDL::Frame transform;
+//            model.getFKPose(angles,transform, parent);
+
+            tf::StampedTransform transform;
+              try{
+                listener.lookupTransform(marker2.header.frame_id, cmsg.header.frame_id,
+                                         ros::Time(0), transform);
+              }
+              catch (tf::TransformException ex){
+                ROS_ERROR("%s",ex.what());
+                r.sleep();
+              }
 
             double fx = 0.1*cmsg.force;
-            KDL::Vector force = pframe.M * KDL::Vector(fx,0,0);
+//            std::cout << trans.name << std::endl;
+            std::cout << cmsg.label << std::endl;
+//            KDL::Frame pframe = trans.frame;
 
-            KDL::Frame force_frame(pframe.M,pframe.p + force);
-            KDL::Frame marker_frame = transform * force_frame;
+//            KDL::Vector force = pframe.M * KDL::Vector(fx,0,0);
+//            KDL::Frame force_frame(pframe.M,pframe.p + force);
+//            KDL::Frame marker_frame = transform * force_frame;
 
+            tf::Pose pframe;
+            tf::poseMsgToTF(cmsg.transform,pframe);
+            tf::Vector3 force = tf::quatRotate(pframe.getRotation(), tf::Vector3(-fx,0,0));
+            tf::Pose force_frame;
+            force_frame.setOrigin(force + pframe.getOrigin());
+            force_frame.setRotation(pframe.getRotation());
+            tf::Pose marker_frame = transform * force_frame;
 
-            marker2.pose.position.x = marker_frame.p(0);
-            marker2.pose.position.y = marker_frame.p(1);
-            marker2.pose.position.z = marker_frame.p(2);
-            marker_frame.M.GetQuaternion(marker2.pose.orientation.x, marker2.pose.orientation.y, marker2.pose.orientation.z, marker2.pose.orientation.w );
+            tf::poseTFToMsg(marker_frame,marker2.pose);
+
+//            marker2.pose.position.x = marker_frame.p(0);
+//            marker2.pose.position.y = marker_frame.p(1);
+//            marker2.pose.position.z = marker_frame.p(2);
+//            marker_frame.M.GetQuaternion(marker2.pose.orientation.x, marker2.pose.orientation.y, marker2.pose.orientation.z, marker2.pose.orientation.w );
 
 
 
             // Set the scale of the marker -- 1x1x1 here means 1m on a side
-            marker2.scale.x = -fx;
+            marker2.scale.x = fx;
             marker2.scale.y = 0.01;
             marker2.scale.z = 0.01;
 
@@ -160,9 +182,9 @@ int main( int argc, char** argv )
             marker2.lifetime = ros::Duration();
         }
         else{
-            marker2.scale.x = 0;
-            marker2.scale.y = 0.00;
-            marker2.scale.z = 0.00;
+            marker2.scale.x = 0.0001;
+            marker2.scale.y = 0.0001;
+            marker2.scale.z = 0.0001;
         }
         marker_pub2.publish(marker2);
         ros::spinOnce();
