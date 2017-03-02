@@ -142,7 +142,7 @@ int main( int argc, char** argv )
                 r.sleep();
               }
 
-            double fx = 0.1*cmsg.force;
+            double fx = std::abs(0.1*cmsg.force);
 //            std::cout << trans.name << std::endl;
             std::cout << cmsg.label << std::endl;
 //            KDL::Frame pframe = trans.frame;
@@ -153,7 +153,7 @@ int main( int argc, char** argv )
 
             tf::Pose pframe;
             tf::poseMsgToTF(cmsg.transform,pframe);
-            tf::Vector3 force = tf::quatRotate(pframe.getRotation(), tf::Vector3(-fx,0,0));
+            tf::Vector3 force = tf::quatRotate(pframe.getRotation(), tf::Vector3(fx,0,0));
             tf::Pose force_frame;
             force_frame.setOrigin(force + pframe.getOrigin());
             force_frame.setRotation(pframe.getRotation());
@@ -169,14 +169,14 @@ int main( int argc, char** argv )
 
 
             // Set the scale of the marker -- 1x1x1 here means 1m on a side
-            marker2.scale.x = fx;
+            marker2.scale.x = -fx;
             marker2.scale.y = 0.01;
             marker2.scale.z = 0.01;
 
             // Set the color -- be sure to set alpha to something non-zero!
-            marker2.color.r = 0.0f;
-            marker2.color.g = 1.0f;
-            marker2.color.b = 1.0f;
+            marker2.color.r = 165.0f/255.0f;
+            marker2.color.g = 3.0f/255.0f;
+            marker2.color.b = 55.0f/255.0f;
             marker2.color.a = 1.0;
 
             marker2.lifetime = ros::Duration();
