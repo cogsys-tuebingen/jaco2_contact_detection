@@ -20,6 +20,7 @@ endif()
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   message_generation
+  jaco2_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -40,6 +41,7 @@ find_package(catkin REQUIRED COMPONENTS
  add_message_files(
    FILES
    Jaco2ContactMsgs.msg
+   Jaco2CollisionSample.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -60,6 +62,7 @@ find_package(catkin REQUIRED COMPONENTS
 generate_messages(
    DEPENDENCIES
    geometry_msgs
+   jaco2_msgs
 )
 
 ################################################
@@ -92,5 +95,5 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  CATKIN_DEPENDS geometry_msgs geometry_msgs message_runtime
+  CATKIN_DEPENDS geometry_msgs geometry_msgs message_runtime jaco2_msgs
 )
