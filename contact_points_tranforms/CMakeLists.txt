@@ -117,7 +117,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 # LIBRARIES contact_points_tranforms
   CATKIN_DEPENDS roscpp rospy tf2 tf2_ros jaco2_kin_dyn_lib
-  DEPENDS system_lib
+#  DEPENDS system_lib
 )
 
 ###########
