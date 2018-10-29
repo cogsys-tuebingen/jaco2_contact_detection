@@ -4,7 +4,7 @@ project(jaco2_surface_model)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+add_definitions(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -20,7 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(OpenMesh QUIET)
 
 if(${OPENMESH_FOUND})
-
+    message("=====================> OpenMesh found")
     ################################################
 
     catkin_package(
@@ -114,6 +114,7 @@ if(${OPENMESH_FOUND})
 
     ## Add folders to be run by python nosetests
     # catkin_add_nosetests(test)
-
+else()
+    message("====================> OpenMesh not found. Skipping this package.")
 endif()
 
