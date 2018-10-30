@@ -55,6 +55,7 @@ if(${OPENMESH_FOUND})
     #    )
 
     add_executable(${PROJECT_NAME}_test_node src/test/jaco2_surface_model_test_node.cpp)
+    add_executable(${PROJECT_NAME}_rotate_and_write src/test/jaco2_surface_model_rotate_and_write.cpp)
 
     ## Add cmake target dependencies of the executable
     ## same as for the library above
@@ -62,6 +63,12 @@ if(${OPENMESH_FOUND})
 
 
     target_link_libraries(${PROJECT_NAME}_test_node
+        #    jaco2_surface_model
+        ${catkin_LIBRARIES}
+        ${OPENMESH_LIBRARIES}
+        )
+
+    target_link_libraries(${PROJECT_NAME}_rotate_and_write
         #    jaco2_surface_model
         ${catkin_LIBRARIES}
         ${OPENMESH_LIBRARIES}

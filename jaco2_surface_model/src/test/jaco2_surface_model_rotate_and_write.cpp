@@ -9,8 +9,6 @@
 #include <OpenMesh/Core/Mesh/ArrayKernel.hh>
 //#include <OpenMesh/Core/Mesh/PolyMesh_ArrayKernelT.hh>
 #include <memory>
-#include <random>
-#include <algorithm>
 typedef OpenMesh::TriMesh_ArrayKernelT<> MyMesh;
 
 MyMesh::VertexIter getVertex(const MyMesh& mesh, const MyMesh::Point& p)
@@ -200,160 +198,15 @@ void rotateMesh( const tf::Matrix3x3& rot, MyMesh& mesh)
     }
 }
 
-namespace MeshToTF{
-
-tf::Vector3 getPoint(const MyMesh& mesh, const MyMesh::VertexHandle& it)
-{
-    MyMesh::Point p = mesh.point(it);
-    return tf::Vector3(p[0],p[1],p[2]);
-}
-
-tf::Vector3 getNormal(const MyMesh& mesh, const MyMesh::VertexHandle& it)
-{
-    MyMesh::Point p = mesh.normal(it);
-    return tf::Vector3(p[0],p[1],p[2]);
-}
-}
-
-struct Particle
-{
-    Particle():
-        s(0)
-    {
-    }
-    void setVertices(MyMesh& mesh,
-                     MyMesh::VertexIter active_vertex,
-                     MyMesh::VOHIter goal_vertex)
-    {
-        this->active_vertex = mesh.handle(mesh.vertex(*active_vertex));
-        this->goal_vertex = mesh.to_vertex_handle(*goal_vertex);
-    }
-
-    void setVertices(MyMesh& mesh,
-                     std::size_t active_vertex,
-                     MyMesh::VOHIter goal_vertex)
-    {
-        this->active_vertex = mesh.vertex_handle(active_vertex);
-        this->goal_vertex = mesh.to_vertex_handle(*goal_vertex);
-    }
-
-    tf::Vector3 getPosition(const MyMesh& mesh) const
-    {
-        tf::Vector3 p0 = MeshToTF::getPoint(mesh, active_vertex);
-        tf::Vector3 p1 = MeshToTF::getPoint(mesh, goal_vertex);
-        tf::Vector3 pos = p0 + s * (p1 - p0);
-        return pos;
-    }
-
-    tf::Vector3 getNormal(const MyMesh &mesh) const
-    {
-        return MeshToTF::getNormal(mesh, active_vertex);
-    }
-
-    MyMesh::VertexHandle active_vertex;
-    MyMesh::VertexHandle goal_vertex;
-    double s;
-};
-
-void visualizeParticle(const Particle& p,
-                       const MyMesh& mesh,
-                       visualization_msgs::Marker& msg)
-{
-    msg.points.clear();
-    msg.type = visualization_msgs::Marker::ARROW;
-    msg.color.a = 0.8;
-    msg.color.r = 0.0;
-    msg.color.g = 1.0;
-    msg.color.b = 0;
-    msg.scale.x = 0.005;
-    msg.scale.y = 0.01;
-    msg.scale.z = 0.01;
-    msg.points.resize(2);
-    tf::Vector3 pos = p.getPosition(mesh);
-    tf::Vector3 n = p.getNormal(mesh);
-    tf::Vector3 p2 = pos + 0.1 * n;
-    msg.points[0].x = pos.x();
-    msg.points[0].y = pos.y();
-    msg.points[0].z = pos.z();
-    msg.points[1].x = p2.x();
-    msg.points[1].y = p2.y();
-    msg.points[1].z = p2.z();
-}
-
-//tf::Vector3 particleGetPosition(const Particle & p, const MyMesh& mesh)
-//{
-//     tf::Vector3 p0 = getPoint(mesh, p.active_vertex);
-//     tf::Vector3 p1 = getPoint(mesh, p.goal_vertex);
-//     tf::Vector3 pos = p0 + p.s * (p1 - p0);
-//     return pos;
-//}
-
-struct RandomWalk
-{
-    RandomWalk():
-        generator_(rd_()),
-        momentum_(0,1.0)
-    {
-
-    }
-
-    void update(Particle & p, MyMesh& mesh)
-    {
-        double delta_s = momentum_(generator_);
-        double s_new = p.s + delta_s;
-        if(s_new >= 1.0){
-            p.active_vertex = p.goal_vertex;
-            std::size_t n_edges = 0;
-            MyMesh::VOHIter vhs =mesh.voh_iter(p.active_vertex);
-            for(MyMesh::VOHIter vohit =vhs; vohit.is_valid(); ++vohit) {
-                ++n_edges;
-            }
-            std::uniform_int_distribution<std::size_t> neighbors(0,n_edges);
-            std::size_t index = neighbors(generator_);
-            for(std::size_t i = 0; i < index; ++i){
-                ++vhs;
-            }
-            p.goal_vertex = mesh.to_vertex_handle(*vhs);
-            p.s = s_new - 1.0;
-        } else{
-            p.s = s_new;
-        }
-    }
-
-    std::random_device rd_;
-    std::mt19937 generator_;
-    std::uniform_real_distribution<double> momentum_;
-    //    std::uniform_int_distribution<int> neighbor_;
-
-};
-
-
-struct GaussianWalk
-{
-    GaussianWalk(double mean, double std):
-        generator_(rd_()),
-        distribution_(mean, std)
-    {
-
-    }
-    void update(Particle & p, const MyMesh& mesh)
-    {
-
-    }
-    std::random_device rd_;
-    std::mt19937 generator_;
-    std::normal_distribution<double> distribution_;
-
-};
 
 int main(int argc, char *argv[])
 {
     ros::init(argc, argv, "jaco2_surface_test_node");
     ros::NodeHandle n("~");
 
-    ros::Publisher pub = n.advertise<visualization_msgs::MarkerArray>("point_on_surface",1);
+//    ros::Publisher pub = n.advertise<visualization_msgs::MarkerArray>("point_on_surface",1);
 
-    visualization_msgs::MarkerArray marray;
+//    visualization_msgs::MarkerArray marray;
     std::cout << "# arguments: "<< argc << std::endl;
     std::vector<std::string> obj_filenames;
     for(std::size_t in = 1; in < argc; ++ in){
@@ -369,13 +222,11 @@ int main(int argc, char *argv[])
     msg.lifetime = ros::Duration(0.2);
     msg.id = 0;
     //        tf::Quaternion static_rot = tf::createQuaternionFromRPY(M_PI_2,0,0);
-    //    tf::Quaternion static_rot2 = tf::createQuaternionFromRPY(M_PI_2,0,0);
-    //    bool write = true;
-    tf::Quaternion static_rot2(0,0,0,1);
-    bool write = false;
+    tf::Quaternion static_rot2 = tf::createQuaternionFromRPY(M_PI_2,0,0);
+    bool write = true;
+
     tf::Matrix3x3 rot(static_rot2);
     tf::Quaternion static_rot(0,0,0,1);
-    std::vector<Particle> particles;
     for(auto obj_filename : obj_filenames){
 
         MyMesh mesh;
@@ -392,89 +243,6 @@ int main(int argc, char *argv[])
         }
         meshes.push_back(mesh);
 
-        tf::Vector3 vtest(0.255,0.0,-0.039);
-        vtest = tf::Matrix3x3(static_rot.inverse()) * vtest;
-        MyMesh::Point ptest;
-        //    ptest[0] = 0.255;
-        //    ptest[1] = 0.0;
-        //    ptest[2] = -0.039;
-        ptest[0] = vtest.x();
-        ptest[1] = vtest.y();
-        ptest[2] = vtest.z();
-
-        MyMesh::VertexIter v_it = getVertex(meshes[i], ptest);
-        //        MyMesh::Point pclose = getPoint(meshes[i], ptest);
-
-
-        //    MyMesh::VertexIter v_it = mesh.vertices_begin()+500;
-        //        msg.pose.orientation.w = 1.0;
-        //        msg.pose.orientation.x = 0.0;
-        //        msg.pose.orientation.y = 0.0;
-        //        msg.pose.orientation.z = 0.0;
-
-        tf::quaternionTFToMsg(static_rot, msg.pose.orientation);
-
-        msg.header.frame_id = frames[i];
-        msg.header.stamp = ros::Time::now();
-        msg.ns = "vertices_" + std::to_string(i);
-        visualizeVertices(meshes[i], msg);
-        marray.markers.push_back(msg);
-
-
-        //    for(auto v_it = mesh.vertices_begin(); v_it!=mesh.vertices_end(); ++v_it){
-
-        MyMesh::Point p = mesh.point(*v_it);
-        MyMesh::VertexVertexIter vv_it = mesh.vv_iter(*v_it);
-        MyMesh::VOHIter vhs = mesh.voh_iter(*v_it);
-        Particle part;
-        part.setVertices(mesh, v_it, vhs);
-        particles.push_back(part);
-
-        std::cout << p[0] << ", " << p[1] << ", " <<p[2] << std::endl;
-        MyMesh::Normal ni = mesh.normal(*v_it);
-        MyMesh::Point pi = mesh.point(*vv_it);
-        MyMesh::Point v = pi - p;
-        double s = 0.0;
-        MyMesh::Point pn = p + s * v;
-        visualizeNormal(pn, ni, msg);
-        marray.markers.push_back(msg);
-
-        visualizeOrigin(msg, marray);
-        ++i;
-        //    }
-
-    }
-
-    //create moving particle
-    RandomWalk rand;
-    Particle& part = particles.front();
-    MyMesh& mesh = meshes.front();
-    visualization_msgs::Marker mpart;
-    mpart.header.frame_id = frames.front();
-    mpart.ns = "random_walk";
-    mpart.id = marray.markers.back().id + 1;
-    visualizeParticle(part, mesh, mpart);
-    marray.markers.push_back(mpart);
-
-//    rand.update(part, mesh);
-
-    ros::Rate r(20);
-    ros::Duration update_time(0.1);
-    ros::Time last_update = ros::Time::now();
-    while(ros::ok()){
-
-        ros::Time current = ros::Time::now();
-        for(visualization_msgs::Marker& m : marray.markers){
-            m.header.stamp = current;
-            if(m.ns.find(mpart.ns) != std::string::npos && (current - last_update) > update_time){
-                rand.update(part, mesh);
-                visualizeParticle(part, mesh, m);
-                last_update = current;
-            }
-        }
-        pub.publish(marray);
-        ros::spinOnce();
-        r.sleep();
     }
 
     return 0;
