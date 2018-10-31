@@ -249,6 +249,15 @@ struct Particle
         updateEdgeLength(mesh);
     }
 
+    void setVertices(MyMesh& mesh,
+                     MyMesh::VertexHandle active_vertex)
+    {
+        this->active_vertex = active_vertex;
+        MyMesh::VOHIter vg = mesh.voh_iter(this->active_vertex );
+        this->goal_vertex = mesh.to_vertex_handle(*vg);
+        updateEdgeLength(mesh);
+    }
+
     tf::Vector3 getPosition(const MyMesh& mesh) const
     {
         tf::Vector3 p0 = MeshToTF::getPoint(mesh, active_vertex);
@@ -259,12 +268,12 @@ struct Particle
 
     tf::Vector3 getActiveVertex(const MyMesh& mesh) const
     {
-       return MeshToTF::getPoint(mesh, active_vertex);
+        return MeshToTF::getPoint(mesh, active_vertex);
     }
 
     tf::Vector3 getGoalVertex(const MyMesh& mesh) const
     {
-       return MeshToTF::getPoint(mesh, goal_vertex);
+        return MeshToTF::getPoint(mesh, goal_vertex);
     }
 
     void updateEdgeLength(const MyMesh& mesh)
@@ -274,9 +283,14 @@ struct Particle
         e = (g - s).length();
     }
 
-    double getDistanceToGoal()
+    double getDistanceToGoal() const
     {
         return (1-s) * e;
+    }
+
+    double getDistanceFromStart() const
+    {
+        return s * e;
     }
 
 
@@ -324,6 +338,34 @@ void visualizeParticle(const Particle& p,
 //     return pos;
 //}
 
+void visualizeBoundry(const MyMesh& mesh, visualization_msgs::Marker& msg)
+{
+    msg.type = visualization_msgs::Marker::POINTS;
+    msg.ns = "boundry";
+    msg.points.clear();
+
+    for(MyMesh::VertexIter it = mesh.vertices_begin(); it!=mesh.vertices_end(); ++it){
+        if(mesh.is_boundary(*it)){
+            MyMesh::Point p =  mesh.point(*it);
+            geometry_msgs::Point pg;
+            pg.x = p[0];
+            pg.y = p[1];
+            pg.z = p[2];
+            msg.points.push_back(pg);
+        }
+    }
+
+    msg.color.a = 0.8;
+    msg.color.r = 255.0/256.0;
+    msg.color.g = 128.0/256.0;
+    msg.color.b = 0;
+
+    msg.scale.x = 0.005;
+    msg.scale.y = 0.005;
+    msg.scale.z = 0.005;
+    ++msg.id;
+}
+
 struct RandomWalk
 {
     RandomWalk(double distance = 0.025):
@@ -336,6 +378,8 @@ struct RandomWalk
     void update(Particle & p, MyMesh& mesh)
     {
         double delta_p = momentum_(generator_);
+        tf::Vector3 start = p.getActiveVertex(mesh);
+        double last_dist = p.getDistanceFromStart();
         while(delta_p > 0){
             double d = p.getDistanceToGoal();
             if(d > delta_p){
@@ -344,12 +388,12 @@ struct RandomWalk
             }  else{
                 delta_p -= d;
                 p.active_vertex = p.goal_vertex;
-                p.goal_vertex = selectRandNeighbour(p.active_vertex, mesh);
+                p.goal_vertex = selectRandNeighbour(p.active_vertex, mesh, start, last_dist);
                 p.updateEdgeLength(mesh);
 
-                double dist_norm = (delta_p - d)/p.e;
+                double dist_norm = delta_p /p.e;
                 p.s = std::min(dist_norm,1.0);
-                delta_p -= p.s * p.e;
+                delta_p -= p.getDistanceFromStart();
             }
         }
 
@@ -357,7 +401,7 @@ struct RandomWalk
 
     }
 
-    MyMesh::VertexHandle selectRandNeighbour(MyMesh::VertexHandle vertex, MyMesh& mesh)
+    MyMesh::VertexHandle selectRandNeighbour(MyMesh::VertexHandle vertex, MyMesh& mesh, tf::Vector3 start, double& last_dist)
     {
         std::size_t n_edges = 0;
         MyMesh::VOHIter vhs =mesh.voh_iter(vertex);
@@ -366,18 +410,26 @@ struct RandomWalk
         }
 
         std::uniform_int_distribution<std::size_t> neighbors(0,n_edges);
-        std::size_t index = neighbors(generator_);
-        for(std::size_t i = 0; i < index; ++i){
-            ++vhs;
+        double dist = 0;
+        MyMesh::VertexHandle v;
+        std::size_t iterations = 0;
+        while(dist <= last_dist && iterations < n_edges){
+            std::size_t index = neighbors(generator_);
+            for(std::size_t i = 0; i < index; ++i){
+                ++vhs;
+            }
+            v = mesh.to_vertex_handle(*vhs);
+            tf::Vector3 pos = MeshToTF::getPoint(mesh, v);
+            dist = (pos -start).length();
         }
-        return mesh.to_vertex_handle(*vhs);
+
+        last_dist = dist;
+        return v;
     }
 
     std::random_device rd_;
     std::mt19937 generator_;
     std::uniform_real_distribution<double> momentum_;
-    //    std::uniform_int_distribution<int> neighbor_;
-
 };
 
 
@@ -451,6 +503,60 @@ struct GaussianWalk
 
 };
 
+std::vector<Particle> createParticleSet(std::size_t n_particle, MyMesh& mesh)
+{
+    double edges_length = 0;
+    std::size_t n_edges = mesh.n_edges();
+
+    for(MyMesh::EdgeIter e_it=mesh.edges_begin(); e_it!=mesh.edges_end(); ++e_it){
+        edges_length += mesh.calc_edge_length(*e_it);
+    }
+
+    /// prepare ordered sequence of random numbers
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::vector<double> u(n_particle, std::pow(dist(gen), 1.0 / static_cast<double>(n_particle)));
+    {
+
+        for(std::size_t k = n_particle - 1 ; k > 0 ; --k) {
+            const double u_ = std::pow(dist(gen), 1.0 / static_cast<double>(k));
+            u[k-1] = u[k] * u_;
+        }
+    }
+
+    /// draw samples
+    std::vector<Particle> particle_set;
+    {
+        auto edge_it  = mesh.edges_begin();
+        double cumsum_last = 0.0;
+        double cumsum = mesh.calc_edge_length(*edge_it)/edges_length;
+
+        auto in_range = [&cumsum, &cumsum_last] (double u)
+        {
+            return u >= cumsum_last && u < cumsum;
+        };
+
+
+        for(auto &u_r : u) {
+            while(!in_range(u_r)) {
+                ++edge_it;
+                cumsum_last = cumsum;
+                cumsum += mesh.calc_edge_length(*edge_it)/edges_length;
+            }
+            Particle p;
+            MyMesh::HalfedgeHandle heh = mesh.halfedge_handle(*edge_it,0);
+            p.active_vertex = mesh.from_vertex_handle(heh);
+            p.goal_vertex = mesh.to_vertex_handle(heh);
+            p.updateEdgeLength(mesh);
+            p.s = 0;
+            particle_set.push_back(p);
+        }
+    }
+
+    return particle_set;
+}
+
 int main(int argc, char *argv[])
 {
     ros::init(argc, argv, "jaco2_surface_test_node");
@@ -466,7 +572,7 @@ int main(int argc, char *argv[])
         return -1;
     }
     std::vector<std::string> obj_filenames;
-        for(std::size_t in = 1; in < argc; ++ in){
+    for(std::size_t in = 1; in < argc; ++ in){
         obj_filenames.push_back(argv[in]);
     }
     std::vector<std::string> frames = {"/jaco_link_2","/jaco_link_3", "/jaco_link_4", "/jaco_link_5", "/jaco_link_hand" ,
@@ -545,35 +651,32 @@ int main(int argc, char *argv[])
         marray.markers.push_back(msg);
 
         visualizeOrigin(msg, marray);
+        visualizeBoundry(mesh, msg);
+        marray.markers.push_back(msg);
         ++i;
         //    }
 
     }
 
     //create moving particles
-    std::vector<Particle> particles;
-    std::vector<std::size_t> selected;
+    MyMesh& mesh = meshes.front();
+
+    std::vector<Particle> particles = createParticleSet(1000, mesh);
     visualization_msgs::MarkerArray vparticles;
     vparticles.markers.clear();
 
     RandomWalk rand;
-//    GaussianWalk rand(0.0,0.05);
-    MyMesh& mesh = meshes.front();
-    std::size_t n_vertices = mesh.n_vertices();
+    //    GaussianWalk rand(0.0,0.05);
+
     visualization_msgs::Marker mpart;
     mpart.header.frame_id = frames.front();
     mpart.ns = "random_walk";
     mpart.id = 0;
-    std::uniform_int_distribution<std::size_t> dist_vert(0,n_vertices-1);
-    for(std::size_t n = 0; n < 100; ++n){
-        std::size_t index = dist_vert(rand.generator_);
-        Particle p;
-        p.setVertices(mesh, index);
+
+    for(const Particle& p : particles){
         visualizeParticle(p, mesh, mpart);
-        particles.push_back(p);
         vparticles.markers.push_back(mpart);
         ++mpart.id;
-
     }
 
     ros::Rate r(20);
