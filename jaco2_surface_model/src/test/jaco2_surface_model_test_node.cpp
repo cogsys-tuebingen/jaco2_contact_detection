@@ -237,12 +237,41 @@ struct Particle
         this->goal_vertex = mesh.to_vertex_handle(*goal_vertex);
     }
 
+
+    void setVertices(MyMesh& mesh,
+                     std::size_t active_vertex)
+    {
+        this->active_vertex = mesh.vertex_handle(active_vertex);
+        MyMesh::VOHIter vg = mesh.voh_iter(this->active_vertex );
+        this->goal_vertex = mesh.to_vertex_handle(*vg);
+    }
+
     tf::Vector3 getPosition(const MyMesh& mesh) const
     {
         tf::Vector3 p0 = MeshToTF::getPoint(mesh, active_vertex);
         tf::Vector3 p1 = MeshToTF::getPoint(mesh, goal_vertex);
         tf::Vector3 pos = p0 + s * (p1 - p0);
         return pos;
+    }
+
+    tf::Vector3 getActiveVertex(const MyMesh& mesh) const
+    {
+       return MeshToTF::getPoint(mesh, active_vertex);
+    }
+
+    tf::Vector3 getGoalVertex(const MyMesh& mesh) const
+    {
+       return MeshToTF::getPoint(mesh, goal_vertex);
+    }
+
+    void updateEdgeLength(const MyMesh& mesh)
+    {
+        e = (getGoalVertex(mesh) - getGoalVertex(mesh)).length();
+    }
+
+    double getDistanceToGoal()
+    {
+        return (1-s) * e;
     }
 
     tf::Vector3 getNormal(const MyMesh &mesh) const
@@ -253,6 +282,7 @@ struct Particle
     MyMesh::VertexHandle active_vertex;
     MyMesh::VertexHandle goal_vertex;
     double s;
+    double e;
 };
 
 void visualizeParticle(const Particle& p,
@@ -290,34 +320,45 @@ void visualizeParticle(const Particle& p,
 
 struct RandomWalk
 {
-    RandomWalk():
+    RandomWalk(double distance = 0.025):
         generator_(rd_()),
-        momentum_(0,1.0)
+        momentum_(0,distance)
     {
 
     }
 
     void update(Particle & p, MyMesh& mesh)
     {
-        double delta_s = momentum_(generator_);
-        double s_new = p.s + delta_s;
-        if(s_new >= 1.0){
-            p.active_vertex = p.goal_vertex;
-            std::size_t n_edges = 0;
-            MyMesh::VOHIter vhs =mesh.voh_iter(p.active_vertex);
-            for(MyMesh::VOHIter vohit =vhs; vohit.is_valid(); ++vohit) {
-                ++n_edges;
+        double delta_p = momentum_(generator_);
+        double distance = 0;
+        while(distance < delta_p){
+            double d = p.getDistanceToGoal();
+            if(d < delta_p){
+                p.s += delta_p/p.e;
+                break;
+            }  else{
+                distance += d;
+                p.active_vertex = p.goal_vertex;
+                std::size_t n_edges = 0;
+                MyMesh::VOHIter vhs =mesh.voh_iter(p.active_vertex);
+                for(MyMesh::VOHIter vohit =vhs; vohit.is_valid(); ++vohit) {
+                    ++n_edges;
+                }
+
+                std::uniform_int_distribution<std::size_t> neighbors(0,n_edges);
+                std::size_t index = neighbors(generator_);
+                for(std::size_t i = 0; i < index; ++i){
+                    ++vhs;
+                }
+                p.goal_vertex = mesh.to_vertex_handle(*vhs);
+                p.updateEdgeLength(mesh);
+                p.s = (delta_p - d)/p.e;
+
             }
-            std::uniform_int_distribution<std::size_t> neighbors(0,n_edges);
-            std::size_t index = neighbors(generator_);
-            for(std::size_t i = 0; i < index; ++i){
-                ++vhs;
-            }
-            p.goal_vertex = mesh.to_vertex_handle(*vhs);
-            p.s = s_new - 1.0;
-        } else{
-            p.s = s_new;
         }
+
+
+
     }
 
     std::random_device rd_;
@@ -352,6 +393,7 @@ int main(int argc, char *argv[])
     ros::NodeHandle n("~");
 
     ros::Publisher pub = n.advertise<visualization_msgs::MarkerArray>("point_on_surface",1);
+    ros::Publisher pub2 = n.advertise<visualization_msgs::MarkerArray>("random_walk",1);
 
     visualization_msgs::MarkerArray marray;
     std::cout << "# arguments: "<< argc << std::endl;
@@ -375,7 +417,6 @@ int main(int argc, char *argv[])
     bool write = false;
     tf::Matrix3x3 rot(static_rot2);
     tf::Quaternion static_rot(0,0,0,1);
-    std::vector<Particle> particles;
     for(auto obj_filename : obj_filenames){
 
         MyMesh mesh;
@@ -425,10 +466,6 @@ int main(int argc, char *argv[])
 
         MyMesh::Point p = mesh.point(*v_it);
         MyMesh::VertexVertexIter vv_it = mesh.vv_iter(*v_it);
-        MyMesh::VOHIter vhs = mesh.voh_iter(*v_it);
-        Particle part;
-        part.setVertices(mesh, v_it, vhs);
-        particles.push_back(part);
 
         std::cout << p[0] << ", " << p[1] << ", " <<p[2] << std::endl;
         MyMesh::Normal ni = mesh.normal(*v_it);
@@ -445,18 +482,30 @@ int main(int argc, char *argv[])
 
     }
 
-    //create moving particle
+    //create moving particles
+    std::vector<Particle> particles;
+    std::vector<std::size_t> selected;
+    visualization_msgs::MarkerArray vparticles;
+    vparticles.markers.clear();
+
     RandomWalk rand;
-    Particle& part = particles.front();
     MyMesh& mesh = meshes.front();
+    std::size_t n_vertices = mesh.n_vertices();
     visualization_msgs::Marker mpart;
     mpart.header.frame_id = frames.front();
     mpart.ns = "random_walk";
-    mpart.id = marray.markers.back().id + 1;
-    visualizeParticle(part, mesh, mpart);
-    marray.markers.push_back(mpart);
+    mpart.id = 0;
+    std::uniform_int_distribution<std::size_t> dist_vert(0,n_vertices-1);
+    for(std::size_t n = 0; n < 100; ++n){
+        std::size_t index = dist_vert(rand.generator_);
+        Particle p;
+        p.setVertices(mesh, index);
+        visualizeParticle(p, mesh, mpart);
+        particles.push_back(p);
+        vparticles.markers.push_back(mpart);
+        ++mpart.id;
 
-//    rand.update(part, mesh);
+    }
 
     ros::Rate r(20);
     ros::Duration update_time(0.1);
@@ -466,13 +515,23 @@ int main(int argc, char *argv[])
         ros::Time current = ros::Time::now();
         for(visualization_msgs::Marker& m : marray.markers){
             m.header.stamp = current;
-            if(m.ns.find(mpart.ns) != std::string::npos && (current - last_update) > update_time){
-                rand.update(part, mesh);
-                visualizeParticle(part, mesh, m);
-                last_update = current;
+        }
+        bool updated = (current - last_update) > update_time;
+        auto it = particles.begin();
+        for(visualization_msgs::Marker& m : vparticles.markers){
+            m.header.stamp = current;
+            if(updated){
+                Particle& p = *it;
+                rand.update(p, mesh);
+                visualizeParticle(p, mesh, m);
             }
+            ++it;
+        }
+        if(updated){
+            last_update = current;
         }
         pub.publish(marray);
+        pub2.publish(vparticles);
         ros::spinOnce();
         r.sleep();
     }
