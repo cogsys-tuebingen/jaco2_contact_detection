@@ -444,13 +444,15 @@ struct GaussianWalk
     void update(Particle & p, MyMesh& mesh)
     {
         double delta_p = momentum_(generator_);
+        tf::Vector3 start = p.getActiveVertex(mesh);
+        double last_dist = p.getDistanceFromStart();
 
         if(delta_p < 0){
             delta_p = std::fabs(delta_p);
             double dist_from_start = p.s * p.e;
             if(dist_from_start < delta_p){
-                p.active_vertex = selectRandNeighbour(p.active_vertex, mesh);
-                p.goal_vertex = selectRandNeighbour(p.active_vertex, mesh);
+                p.active_vertex = selectRandNeighbour(p.active_vertex, mesh, start, last_dist);
+                p.goal_vertex = selectRandNeighbour(p.active_vertex, mesh, start, last_dist);
                 delta_p -= dist_from_start;
             } else {
                 p.s -= delta_p / p.e;
@@ -459,29 +461,25 @@ struct GaussianWalk
             }
         }
 
-        double delta_togo = delta_p;
-        double distance = 0;
-
-        while(distance < delta_p){
+        while(delta_p > 0){
             double d = p.getDistanceToGoal();
-            if(d > delta_togo){
+            if(d > delta_p){
                 p.s += delta_p/p.e;
                 break;
             }  else{
-                distance += d;
-                delta_togo -= d;
+                delta_p -= d;
                 p.active_vertex = p.goal_vertex;
-                p.goal_vertex = selectRandNeighbour(p.active_vertex, mesh);
+                p.goal_vertex = selectRandNeighbour(p.active_vertex, mesh, start, last_dist);
                 p.updateEdgeLength(mesh);
-                double dist_norm = (delta_p - d)/p.e;
-                p.s = std::min(dist_norm,1.0);
-                delta_togo -= p.s * p.e;
 
+                double dist_norm = delta_p /p.e;
+                p.s = std::min(dist_norm,1.0);
+                delta_p -= p.getDistanceFromStart();
             }
         }
     }
 
-    MyMesh::VertexHandle selectRandNeighbour(MyMesh::VertexHandle vertex, MyMesh& mesh)
+    MyMesh::VertexHandle selectRandNeighbour(MyMesh::VertexHandle vertex, MyMesh& mesh, tf::Vector3 start, double& last_dist)
     {
         std::size_t n_edges = 0;
         MyMesh::VOHIter vhs =mesh.voh_iter(vertex);
@@ -490,11 +488,21 @@ struct GaussianWalk
         }
 
         std::uniform_int_distribution<std::size_t> neighbors(0,n_edges);
-        std::size_t index = neighbors(generator_);
-        for(std::size_t i = 0; i < index; ++i){
-            ++vhs;
+        double dist = 0;
+        MyMesh::VertexHandle v;
+        std::size_t iterations = 0;
+        while(dist <= last_dist && iterations < n_edges){
+            std::size_t index = neighbors(generator_);
+            for(std::size_t i = 0; i < index; ++i){
+                ++vhs;
+            }
+            v = mesh.to_vertex_handle(*vhs);
+            tf::Vector3 pos = MeshToTF::getPoint(mesh, v);
+            dist = (pos -start).length();
         }
-        return mesh.to_vertex_handle(*vhs);
+
+        last_dist = dist;
+        return v;
     }
 
     std::random_device rd_;
