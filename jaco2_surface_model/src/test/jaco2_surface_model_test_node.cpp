@@ -421,6 +421,7 @@ struct RandomWalk
             v = mesh.to_vertex_handle(*vhs);
             tf::Vector3 pos = MeshToTF::getPoint(mesh, v);
             dist = (pos -start).length();
+            ++iterations;
         }
 
         last_dist = dist;

@@ -42,6 +42,7 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
    Jaco2ContactMsgs.msg
    Jaco2CollisionSample.msg
+   Jaco2CollisionSequence.msg
 )
 
 ## Generate services in the 'srv' folder
