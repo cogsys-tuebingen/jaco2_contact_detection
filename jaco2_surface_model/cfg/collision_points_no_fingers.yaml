@@ -1,0 +1,406 @@
+parameter:
+  - parent: jaco_link_1
+    frame_name: p111
+    q_x:  0.0
+    q_y:  0.106804
+    q_z:  -0.684518
+    q_w:  0.72113
+    p_x:  0.0
+    p_y:  -0.04064
+    p_z:  -0.02286
+  - parent: jaco_link_1
+    frame_name: p121
+    q_x:  -0.0
+    q_y:  0.026253
+    q_z:  0.669113
+    q_w:  0.742696
+    p_x:  0.00381
+    p_y:  0.040386
+    p_z:  -0.039116
+  - parent: jaco_link_1
+    frame_name: p122
+    q_x:  0.0
+    q_y:  -0.011381
+    q_z:  0.711291
+    q_w:  0.702806
+    p_x:  0.000914
+    p_y:  0.041148
+    p_z:  -0.116078
+  - parent: jaco_link_1
+    frame_name: p131
+    q_x:  0.0
+    q_y:  0
+    q_z:  1
+    q_w:  0
+    p_x:  -0.0381
+    p_y:  0.023876
+    p_z:  -0.061722
+  - parent: jaco_link_1
+    frame_name: p141
+    q_x:  0.0
+    q_y:  -0.014985
+    q_z:  0.03971
+    q_w:  0.999099
+    p_x:  0.0381
+    p_y:  0.023368
+    p_z:  -0.061722
+  - parent: jaco_link_2
+    frame_name: p211
+    q_x: 0
+    q_y: 0.707107
+    q_z: 0
+    q_w: 0.707107
+    p_x: 0.051054
+    p_y: 0.000762
+    p_z: -0.042672
+  - parent: jaco_link_2
+    frame_name: p212
+    q_x: 0
+    q_y: 0.707107
+    q_z: 0
+    q_w: 0.707107
+    p_x: 0.155448
+    p_y: 0
+    p_z: -0.038608
+  - parent: jaco_link_2
+    frame_name: p213
+    q_x: 0
+    q_y: 0.690385
+    q_z: -0.0624469
+    q_w: 0.720742
+    p_x: 0.254508
+    p_y: 0
+    p_z: -0.038608
+  - parent: jaco_link_2
+    frame_name: p214
+    q_x: 0
+    q_y: 0.714667
+    q_z: -0.0221768
+    q_w: 0.699113
+    p_x: 0.356362
+    p_y: -0.00127
+    p_z: -0.042418
+  - parent: jaco_link_2
+    frame_name: p221
+    q_x: 0
+    q_y: -0.739454
+    q_z: 0.036452
+    q_w: 0.672219
+    p_x: 0.0673862
+    p_y: 0
+    p_z: -0.012954
+  - parent: jaco_link_2
+    frame_name: p222
+    q_x: 0
+    q_y: -0.725745
+    q_z: -0.0495489
+    q_w: 0.686177
+    p_x: 0.15494
+    p_y: 0
+    p_z: -0.004318
+  - parent: jaco_link_2
+    frame_name: p223
+    q_x: 0
+    q_y: -0.683128
+    q_z: 0.053498
+    q_w: 0.728336
+    p_x: 0.258318
+    p_y: 0
+    p_z: -0.004318
+  - parent: jaco_link_2
+    frame_name: p241
+    q_x: 0
+    q_y: 0
+    q_z: -0.707107
+    q_w: 0.707107
+    p_x: 0.05207
+    p_y: -0.0381
+    p_z: -0.031242
+  - parent: jaco_link_2
+    frame_name: p242
+    q_x: 0
+    q_y: 0
+    q_z: -0.707107
+    q_w: 0.707107
+    p_x: 0.15367
+    p_y: -0.03175
+    p_z: -0.026416
+  - parent: jaco_link_2
+    frame_name: p243
+    q_x: 0
+    q_y: 0
+    q_z: -0.707107
+    q_w: 0.707107
+    p_x: 0.254508
+    p_y: -0.033782
+    p_z: -0.025146
+  - parent: jaco_link_2
+    frame_name: p244
+    q_x: 0
+    q_y: 0
+    q_z: -0.707107
+    q_w: 0.707107
+    p_x: 0.35941
+    p_y: -0.038354
+    p_z: -0.03048
+  - parent: jaco_link_2
+    frame_name: p231
+    q_x: 0
+    q_y: 0
+    q_z: 0.707107
+    q_w: 0.707107
+    p_x: 0.051054
+    p_y: 0.038862
+    p_z: -0.02921
+  - parent: jaco_link_2
+    frame_name: p232
+    q_x: 0
+    q_y: 0
+    q_z: 0.707107
+    q_w: 0.707107
+    p_x: 0.155702
+    p_y: 0.033782
+    p_z: -0.02921
+  - parent: jaco_link_2
+    frame_name: p233
+    q_x: 0
+    q_y: 0
+    q_z: 0.707107
+    q_w: 0.707107
+    p_x: 0.254508
+    p_y: 0.033782
+    p_z: -0.021082
+  - parent: jaco_link_2
+    frame_name: p234
+    q_x: 0
+    q_y: 0
+    q_z: 0.707107
+    q_w: 0.707107
+    p_x: 0.36195
+    p_y: 0.038862
+    p_z: -0.030226
+  - parent: jaco_link_3
+    frame_name: p312
+    q_x: 0.0
+    q_y: -0.755166
+    q_z:  0.00535
+    q_w: 0.655512
+    p_x: 0.086035
+    p_y: 0.0
+    p_z: -0.010087
+  - parent: jaco_link_3
+    frame_name: p313
+    q_x: 0
+    q_y: -0.758312
+    q_z: 0.0123053
+    q_w: 0.651775
+    p_x: 0.18415
+    p_y: 0
+    p_z: 0.0195834
+  - parent: jaco_link_3
+    frame_name: p321
+    q_x: 0
+    q_y: 0.687926
+    q_z: 0.0234363
+    q_w: 0.725403
+    p_x: 0.0134493
+    p_y: 0
+    p_z: -0.0415011
+  - parent: jaco_link_3
+    frame_name: p322
+    q_x: 0
+    q_y: 0.688396
+    q_z: -0.0359043
+    q_w: 0.724445
+    p_x: 0.0860346
+    p_y: 0
+    p_z: -0.0349842
+  - parent: jaco_link_3
+    frame_name: p323
+    q_x: 0
+    q_y: 0.728937
+    q_z: -0.0557336
+    q_w: 0.682308
+    p_x: 0.18415
+    p_y: 0
+    p_z: -0.0419608
+  - parent: jaco_link_3
+    frame_name: p331
+    q_x: 0
+    q_y: 0.102953
+    q_z: -0.665666
+    q_w: 0.739114
+    p_x: 0.0134493
+    p_y: -0.041148
+    p_z: -0.029819
+  - parent: jaco_link_3
+    frame_name: p332
+    q_x: 0
+    q_y: 0.118705
+    q_z: -0.637468
+    q_w: 0.761278
+    p_x: 0.0860349
+    p_y: -0.030734
+    p_z: -0.023495
+  - parent: jaco_link_3
+    frame_name: p333
+    q_x: 0
+    q_y: 0.116573
+    q_z: -0.69661
+    q_w: 0.707916
+    p_x: 0.18415
+    p_y: -0.030734
+    p_z: -0.00990
+  - parent: jaco_link_3
+    frame_name: p341
+    q_x: 0
+    q_y: -0.101161
+    q_z: 0.684567
+    q_w: 0.721897
+    p_x: 0.0134493
+    p_y: 0.041148
+    p_z: -0.029819
+  - parent: jaco_link_3
+    frame_name: p342
+    q_x: 0
+    q_y: -0.14455
+    q_z: 0.629871
+    q_w: 0.76313
+    p_x: 0.0860349
+    p_y: 0.030734
+    p_z: -0.023495
+  - parent: jaco_link_3
+    frame_name: p343
+    q_x: 0
+    q_y: -0.0884114
+    q_z: 0.678506
+    q_w: 0.729255
+    p_x: 0.18415
+    p_y: 0.030734
+    p_z: -0.009906
+  - parent: jaco_link_4
+    frame_name: p411
+    q_x: 0.0
+    q_y: -0.258819
+    q_z: 0.0
+    q_w: 0.965926
+    p_x: 0.03302
+    p_y: 0.0
+    p_z: -0.02286
+  - parent: jaco_link_4
+    frame_name: p421
+    q_x: -0.258819
+    q_y: 1.58481e-17
+    q_z: 0.965926
+    q_w: 5.91459e-17
+    p_x: -0.01778
+    p_y: 0.0
+    p_z: -0.0508
+  - parent: jaco_link_4
+    frame_name: p431
+    q_x: 0.0
+    q_y: 0.0
+    q_z: -0.707107
+    q_w: 0.707107
+    p_x: 0.0
+    p_y: -0.03556
+    p_z: -0.0381
+  - parent: jaco_link_4
+    frame_name: p441
+    q_x: 0.0
+    q_y: 0.0
+    q_z: 0.707107
+    q_w: 0.707107
+    p_x: 0.0
+    p_y: 0.03556
+    p_z: -0.0381
+  - parent: jaco_link_5
+    frame_name: p511
+    q_x: -0.258819
+    q_y: 1.58481e-17
+    q_z: 0.965926
+    q_w: 5.91459e-17
+    p_x: -0.01778
+    p_y: 0.0
+    p_z: -0.0508
+  - parent: jaco_link_5
+    frame_name: p521
+    q_x: 0.0
+    q_y: -0.258819
+    q_z: 0.0
+    q_w: 0.965926
+    p_x: 0.03302
+    p_y: 0.0
+    p_z: -0.02286
+  - parent: jaco_link_5
+    frame_name: p531
+    q_x: 0.0
+    q_y: 0.0
+    q_z: 0.707107
+    q_w: 0.707107
+    p_x: 0.0
+    p_y: 0.03556
+    p_z: -0.0381
+  - parent: jaco_link_5
+    frame_name: p541
+    q_x: 0.0
+    q_y: 0.0
+    q_z: -0.707107
+    q_w: 0.707107
+    p_x: 0.0
+    p_y: -0.03556
+    p_z: -0.0381
+  - parent: jaco_link_hand
+    frame_name: p611
+    q_x:  0.0
+    q_y:  -0.076486
+    q_z:  -0.075536
+    q_w:  0.994205
+    p_x:  0.047498
+    p_y:  -0.023876
+    p_z:  -0.060452
+  - parent: jaco_link_hand
+    frame_name: p621
+    q_x:  0.0
+    q_y:  -0.120126
+    q_z:  0.115333
+    q_w:  0.986037
+    p_x:  0.046482
+    p_y:  0.023114
+    p_z:  -0.057658
+  - parent: jaco_link_hand
+    frame_name: p631
+    q_x:  0.0
+    q_y:  -0.103594
+    q_z:  0.686917
+    q_w:  0.719315
+    p_x:  0.019812
+    p_y:  0.044196
+    p_z:  -0.06985
+  - parent: jaco_link_hand
+    frame_name: p641
+    q_x:  0.0
+    q_y:  -0.025876
+    q_z:  0.804746
+    q_w:  0.593055
+    p_x:  -0.0381
+    p_y:  0.02413
+    p_z:  -0.061976
+  - parent: jaco_link_hand
+    frame_name: p651
+    q_x:  0.0
+    q_y:  -0.126212
+    q_z:  -0.814809
+    q_w:  0.565825
+    p_x:  -0.039624
+    p_y:  -0.026924
+    p_z:  -0.06858
+  - parent: jaco_link_hand
+    frame_name: p661
+    q_x:  0.0
+    q_y:  -0.066466
+    q_z:  -0.775164
+    q_w:  0.628254
+    p_x:  0.016002
+    p_y:  -0.04445
+    p_z:  -0.070612
