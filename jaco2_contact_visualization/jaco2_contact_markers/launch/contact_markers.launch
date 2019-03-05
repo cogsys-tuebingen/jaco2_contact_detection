@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<launch>  
-  <node pkg="jaco2_contact_markers" type="jaco2_contact_markers_node" name="publish_contact_markers">
-    <param name="/point_path" type="string" value="$(find contact_points_tranforms)/config/collision_points.yaml"/>
-    <param name="no_contact_label" type="int" value="0"/>
-  </node>
-</launch>

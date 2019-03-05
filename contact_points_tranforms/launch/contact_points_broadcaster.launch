@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<launch>  
-  <node pkg="contact_points_tranforms" type="publish_static_tf_point_transforms" name="publish_static_tf_point_transforms">
-    <param name="/contact_points_file" type="string" value="$(find contact_points_tranforms)/config/collision_points.yaml"/>
-  </node>
-</launch>
